@@ -676,6 +676,19 @@ table.t.prio td .gl{font-size:13px}
 #codes td,#codes th{padding:7px 6px;border-bottom:1px solid var(--line);text-align:left}
 #codes td.k{font-weight:700;letter-spacing:.04em}
 @media print{.tbar,#login,#codes,.side{display:none!important}.rep{grid-template-columns:1fr!important}}
+/* ---------- v9: larger report titles; group colours A green, B orange, C red ---------- */
+:root{--gA:#1E9E5A;--gB:#E8820C;--gC:#D93A3A}
+html[data-theme="dark"]{--gA:#34D399;--gB:#FFA94D;--gC:#FF6B6B}
+header.top .eyebrow{font-size:clamp(14px,1.7vw,19px);letter-spacing:.07em;color:var(--accent)}
+header.top h1{font-size:clamp(30px,4.8vw,52px)}
+.tbar .tt{font-size:17px;font-weight:800}
+.cc.A{border:2px solid var(--gA)} .cc.B{border:2px solid var(--gB)} .cc.C{border:2px solid var(--gC)}
+.cc.A .ct small{color:var(--gA);font-weight:800} .cc.B .ct small{color:var(--gB);font-weight:800} .cc.C .ct small{color:var(--gC);font-weight:800}
+details.fac.pg.A{border:2px solid var(--gA)} details.fac.pg.B{border:2px solid var(--gB)} details.fac.pg.C{border:2px solid var(--gC)}
+table.t tr.gh.A td{border-top:2px solid var(--gA);border-bottom:2px solid var(--gA)}
+table.t tr.gh.B td{border-top:2px solid var(--gB);border-bottom:2px solid var(--gB)}
+table.t tr.gh.C td{border-top:2px solid var(--gC);border-bottom:2px solid var(--gC)}
+table.t tr.m.A td:first-child{box-shadow:inset 6px 0 0 var(--gA)} table.t tr.m.B td:first-child{box-shadow:inset 6px 0 0 var(--gB)} table.t tr.m.C td:first-child{box-shadow:inset 6px 0 0 var(--gC)}
 </style>
 </head>
 <body>
@@ -1103,7 +1116,7 @@ function enpsBlock(){
   } else {
     const nm = state.comp.size ? 'Сонгосон' : state.grp.size ? [...state.grp].join(', ') + ' бүлэг' : 'Групп';
     series.push({name: nm, pts: YEARS.map(y => S.byYear[y].st.enps ? S.byYear[y].st.enps.score : null), color: '#EAF0FF'});
-    if (!state.comp.size && !state.grp.size) Object.keys(M.groups).forEach((g, i) => series.push({name: g + ' бүлэг', pts: YEARS.map(y => { const s2 = stats(S.byYear[y].rows.filter(r => grpOf[M.comps[r[0]]] === g), y); return s2.enps ? s2.enps.score : null; }), color: ['#5B8CFF','#FFB547','#C084FC'][i]}));
+    if (!state.comp.size && !state.grp.size) Object.keys(M.groups).forEach((g, i) => series.push({name: g + ' бүлэг', pts: YEARS.map(y => { const s2 = stats(S.byYear[y].rows.filter(r => grpOf[M.comps[r[0]]] === g), y); return s2.enps ? s2.enps.score : null; }), color: GCOL[g]}));
   }
   const e = S.st.enps;
   return `<div class="grid2"><div class="panel"><h3>eNPS 3 жилээр</h3>${lineChart(series)}<p class="note">${esc(MODE === 'company' ? (CFG.legacy || '') : (CFG.note || ''))}</p></div>
@@ -1448,7 +1461,7 @@ function partHtml(){
   if (MODE !== 'company'){
     const th = `<thead><tr><th>Компани</th><th class="c">Хамрагдах ажилтан</th><th class="c">Бөглөсөн</th><th class="c">Хүчинтэй</th><th class="c">Ирц</th></tr></thead>`;
     const gd = Object.keys(M.groups).map(g => { const gc = M.groups[g].filter(c => cs.includes(c)); if (!gc.length) return ''; const gp = partOf(gc);
-      return `<details class="fac pg" style="margin-top:8px"${printAll ? ' open' : ''}><summary><h3 style="display:flex;gap:10px;align-items:center"><span class="mx-legend gk"><i style="background:${GCOL[g]}"></i></span>${g} бүлэг · ${gc.length} компани</h3><span class="note">${gp.valid} / ${gp.hc} ажилтан</span><div class="pc num" style="text-align:right;font-weight:700">${pct(gp.rate)}%</div></summary><div class="body"><div class="tw"><table class="t">${th}<tbody>${gc.map(c => { const q = partOf([c]); return `<tr class="m ${g}"><td>${c}</td><td class="r">${q.hc}</td><td class="r">${q.raw}</td><td class="r">${q.valid}</td><td class="r">${pct(q.rate)}%</td></tr>`; }).join('')}</tbody></table></div></div></details>`; }).join('');
+      return `<details class="fac pg ${g}" style="margin-top:8px"${printAll ? ' open' : ''}><summary><h3 style="display:flex;gap:10px;align-items:center"><span class="mx-legend gk"><i style="background:${GCOL[g]}"></i></span>${g} бүлэг · ${gc.length} компани</h3><span class="note">${gp.valid} / ${gp.hc} ажилтан</span><div class="pc num" style="text-align:right;font-weight:700">${pct(gp.rate)}%</div></summary><div class="body"><div class="tw"><table class="t">${th}<tbody>${gc.map(c => { const q = partOf([c]); return `<tr class="m ${g}"><td>${c}</td><td class="r">${q.hc}</td><td class="r">${q.raw}</td><td class="r">${q.valid}</td><td class="r">${pct(q.rate)}%</td></tr>`; }).join('')}</tbody></table></div></div></details>`; }).join('');
     h += `<details class="fac col" style="margin-top:12px"${printAll ? ' open' : ''}><summary><h3>Ирц бүлэг, компаниар</h3><span class="note">дэлгэх</span></summary><div class="body">${gd}</div></details>`;
   }
   h += `<p class="note" style="margin-top:8px">Ирц = хүчинтэй хариулт ÷ хамрагдах ажилтны тоо. Хоосон эсвэл бүрэн бөглөөгүй хариултыг хүчингүйд тооцсон.</p>`;
@@ -1752,7 +1765,7 @@ function homeHtml(){
     <button class="hc" type="button" data-open="group"><span class="k">Хүний нөөц, шинжилгээ</span><h2>Группийн дэлгэрэнгүй тайлан</h2><p>Хүчин зүйл, асуулт бүрийн үр дүн, онуудын өөрчлөлт, компани ба ажилтны бүлгээр харьцуулалт, ажилтнуудын санал, арга хэмжээ.</p>
       <div class="ks"><div><b>${fmt(g.n)}</b><span>Хүчинтэй хариулт</span></div><div><b>18</b><span>Компани</span></div><div><b>${p1(g.trust)}%</b><span>Үр дүнд итгэх итгэл</span></div></div><span class="go">Нээх →</span></button>
    </div>
-   <div><h2 style="margin-bottom:10px">Охин компанийн дэлгэрэнгүй тайлан</h2><div class="ccards">${comp.map(x => `<button class="cc" type="button" data-open="${esc(x.c)}"><span class="ct">${esc(x.c)}<small>${esc(x.g)} бүлэг</small></span><span class="cv"><span>Ирц <b>${x.p ? p1(x.p.rate) + '%' : '—'}</b></span><span>Дундаж <b>${p1(x.q.overall)}%</b></span><span>eNPS <b>${sgn(x.q.enps)}</b></span></span></button>`).join('')}</div></div>
+   <div><h2 style="margin-bottom:10px">Охин компанийн дэлгэрэнгүй тайлан</h2><div class="ccards">${comp.map(x => `<button class="cc ${esc(x.g)}" type="button" data-open="${esc(x.c)}"><span class="ct">${esc(x.c)}<small>${esc(x.g)} бүлэг</small></span><span class="cv"><span>Ирц <b>${x.p ? p1(x.p.rate) + '%' : '—'}</b></span><span>Дундаж <b>${p1(x.q.overall)}%</b></span><span>eNPS <b>${sgn(x.q.enps)}</b></span></span></button>`).join('')}</div></div>
    <p class="note">Тайлан бүрийн дотор зүүн талын агуулгаар хэсгүүдийн хооронд шилжинэ. Нүүр хуудас руу дээд мөрний «Нүүр» товчоор буцна.</p></div>`;
 }
 function reportSkeleton(p, id){
